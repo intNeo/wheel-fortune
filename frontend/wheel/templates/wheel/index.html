@@ -1,0 +1,115 @@
+{% load static %}
+<!doctype html>
+<html lang="ru">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="theme-color" content="#f6f5f0">
+    <meta name="description"
+        content="Колесо фортуны для розыгрышей: добавляйте ники, настраивайте шансы и выбирайте победителя.">
+    <title>Колесо фортуны — пусть решит случай</title>
+    <link rel="stylesheet" href="{% static 'wheel/styles.css' %}">
+    <script src="{% static 'wheel/theme.js' %}"></script>
+    <link rel="icon" href="{% static 'wheel/favicon.ico' %}" type="image/x-icon">
+</head>
+
+<body>
+    <header><a class="brand" href="./"><span class="brand-icon">✳</span> фортуна<span
+                class="brand-dot">.</span></a><span class="header-note"><i></i> Немного удачи — и всё получится</span>
+        <form action="/logout/" method="post" class="logout-form">{% csrf_token %}<button type="submit"
+                class="icon-button">Выйти</button></form><button id="sound" class="icon-button"
+            aria-label="Включить звук" title="Включить звук">Звук выкл.</button>
+    </header>
+    <main>
+        <div class="intro">
+            <div class="eyebrow">ВАШ СЛЕДУЮЩИЙ ПОБЕДИТЕЛЬ УЖЕ ЗДЕСЬ</div>
+            <h1>Пусть решит <em>случай.</em><span class="spark">✳</span></h1>
+            <p>Добавьте участников, выберите режим и доверьтесь фортуне.</p>
+        </div>
+        <div class="workspace">
+            <section class="settings panel">
+                <div class="section-heading">
+                    <h2><span class="step">01</span> Участники</h2><span id="entryCount" class="badge">8 записей</span>
+                </div><label for="names" class="field-label">Каждый ник — с новой строки</label>
+                <div class="input-wrap"><textarea id="names" spellcheck="false"
+                        placeholder="intNeo&#10;test&#10;test&#10;player_01"
+                        aria-describedby="namesHelp"></textarea><span class="input-decoration">↵</span></div>
+                <div class="input-footer"><span id="namesHelp">Повторы учитываются в выбранном режиме</span><button
+                        class="text-button" id="clear">Очистить</button></div>
+                <div class="divider"></div>
+                <div class="section-heading">
+                    <h2><span class="step">02</span> Режим выбора</h2>
+                </div>
+                <div class="modes" role="radiogroup" aria-label="Режим выбора"><button class="mode selected"
+                        data-mode="normal" role="radio" aria-checked="true"><span
+                            class="mode-symbol">＝</span><span><strong>Обычный</strong><small>Одна запись — один
+                                шанс</small></span><span class="radio"></span></button><button class="mode"
+                        data-mode="weighted" role="radio" aria-checked="false"><span
+                            class="mode-symbol">↗</span><span><strong>Ники имеют вес</strong><small>Больше повторов —
+                                больше шансов</small></span><span class="radio"></span></button><button class="mode"
+                        data-mode="inverse" role="radio" aria-checked="false"><span
+                            class="mode-symbol">↘</span><span><strong>Ники: инверсия</strong><small>Больше повторов —
+                                меньше шансов</small></span><span class="radio"></span></button></div>
+                <p id="modeHelp" class="mode-help">Каждая строка — отдельный сектор одинакового размера. Повторяющиеся
+                    ники остаются на колесе.</p>
+                <div class="divider"></div>
+                <div class="duration-heading"><label for="duration"><span class="step">03</span> Длительность
+                        вращения</label><output id="durationValue" for="duration">8 <span>сек</span></output></div>
+                <input id="duration" type="range" min="3" max="20" value="8">
+                <div class="range-labels"><span>3 сек</span><span>20 сек</span></div>
+            </section>
+            <section class="wheel-panel" aria-label="Колесо фортуны">
+                <div class="wheel-meta"><span class="live-dot"></span><span id="wheelStatus">ВСЁ ГОТОВО К
+                        РОЗЫГРЫШУ</span></div>
+                <div class="wheel-stage">
+                    <div class="orbit orbit-one"></div>
+                    <div class="orbit orbit-two"></div><span class="tiny-star star-one">✧</span><span
+                        class="tiny-star star-two">✳</span>
+                    <div class="pointer"></div><canvas id="wheel" width="1200" height="1200"
+                        aria-label="Колесо с участниками"></canvas>
+                    <div class="hub"><span>✳</span></div>
+                </div>
+                <div class="wheel-bottom"><button id="spin" class="spin-button"><span>Крутить колесо</span><span
+                            class="button-arrow">↗</span></button>
+                    <p id="spinHint">Нажмите на кнопку или пробел — удача уже рядом</p>
+                </div>
+                <div class="stats">
+                    <div><strong id="uniqueCount">8</strong><span>уникальных ников</span></div><span
+                        class="stat-separator"></span>
+                    <div><strong id="sectorCount">8</strong><span>секторов на колесе</span></div><span
+                        class="stat-separator"></span>
+                    <div><strong id="roundCount">0</strong><span>проведено розыгрышей</span></div>
+                </div>
+            </section>
+        </div>
+        <section class="history panel">
+            <div class="history-heading">
+                <h2><span class="history-icon">↺</span> История удачи <span id="historyCount" class="badge">0</span>
+                </h2><button id="clearHistory" class="text-button">Очистить историю</button>
+            </div>
+            <div id="historyList" class="history-list"><span class="empty-history">Здесь появятся ваши победители. Кто
+                    будет первым?</span></div>
+        </section>
+        <footer>
+            <span>Случайность с хорошими намерениями.</span><span>Списки и история сохраняются в этом браузере <span
+                    class="footer-star">✳</span></span>
+                    <a class="icon-credit"
+                href="https://www.flaticon.com/ru/free-icons/" title="Иконки от Aranagraphics — Flaticon"
+                target="_blank" rel="noopener noreferrer">
+                Иконки от Aranagraphics — Flaticon
+            </a></footer>
+    </main>
+    <dialog id="winnerDialog"><button id="closeWinner" class="close-button" aria-label="Закрыть">×</button>
+        <div class="winner-icon">✳</div>
+        <div class="eyebrow">ФОРТУНА СДЕЛАЛА СВОЙ ВЫБОР</div>
+        <h2>У нас есть победитель!</h2>
+        <div id="winnerName" class="winner-name"></div>
+        <p id="winnerDetails"></p><button id="again" class="spin-button">Ещё один розыгрыш
+            <span>↗</span></button><button id="removeWinner" class="remove-button">Убрать победителя из списка</button>
+    </dialog>
+    <div id="announcement" class="sr-only" aria-live="polite"></div>
+    <script src="{% static 'wheel/app.js' %}"></script>
+</body>
+
+</html>

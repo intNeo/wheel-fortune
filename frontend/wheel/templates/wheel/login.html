@@ -1,0 +1,31 @@
+{% load static %}
+<!doctype html>
+<html lang="ru">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="robots" content="noindex,nofollow">
+    <title>Вход — Колесо фортуны</title>
+    <link rel="stylesheet" href="{% static 'wheel/styles.css' %}">
+    <script src="{% static 'wheel/theme.js' %}"></script>
+    <link rel="icon" href="{% static 'wheel/favicon.ico' %}" type="image/x-icon">
+</head>
+
+<body>
+    <main class="login-main">
+        <section class="panel login-panel">
+            <div class="winner-icon">✳</div>
+            <div class="eyebrow">КОЛЕСО ФОРТУНЫ</div>
+            <h1>Вход по токену</h1>
+            <p>Введите токен доступа, выданный владельцем сайта.</p>
+            <form method="post" action="/login/">{% csrf_token %}<label for="token" class="field-label">Токен
+                    доступа</label><input type="password" id="token" name="token" required maxlength="256"
+                    autocomplete="current-password" autofocus>{% if error %}<p class="login-error" role="alert">{{ error
+                    }}</p>{% endif %}<button type="submit" class="spin-button">Войти</button></form>
+            <p class="login-note">Сессия ограничена по времени. После работы нажмите «Выйти».</p>
+        </section>
+    </main>
+</body>
+
+</html>
